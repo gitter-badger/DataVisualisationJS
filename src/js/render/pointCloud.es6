@@ -4,12 +4,12 @@ import { fromIndex } from '../coords';
 var stats = new Stats();
 stats.setMode( 0 );
 stats.domElement.style.position = 'absolute';
-stats.domElement.style.left = '0px';
-stats.domElement.style.top = '0px';
+stats.domElement.style.left = '5px';
+stats.domElement.style.top = '5px';
 
 var scene, camera, controls, renderer;
 var geometry, material, mesh, cubeMesh, cube;
-var label;
+var label, rotationButton;
 var cloudMeshes = [];
 
 function createLabel() {
@@ -17,6 +17,16 @@ function createLabel() {
   label.className = 'label';
   label.innerHTML = "&nbsp;";
   document.body.appendChild(label);
+}
+
+function createRotationStop() {
+  rotationButton = document.createElement('button');
+  rotationButton.innerHTML = '  Toggle Rotation  ';
+  rotationButton.style.position = 'absolute';
+  rotationButton.style.padding = '10px';
+  rotationButton.style.right = '5px';
+  rotationButton.style.top = '5px';
+  document.body.appendChild(rotationButton);
 }
 
 const baseZoom = 450;
@@ -35,7 +45,7 @@ function init() {
   camera.position.z = 500;
   camera.lookAt(origin);
 
-  controls = new OrbitControls(camera);
+  controls = new OrbitControls(camera, renderer.domElement);
   controls.target = origin;
   controls.autoRotate = true;
   controls.autoRotateSpeed = 4;
@@ -45,14 +55,21 @@ function init() {
 
   document.body.appendChild( renderer.domElement );
   createLabel();
+  createRotationStop();
   document.body.appendChild( stats.domElement );
 
   resize();
 
   window.addEventListener('resize', resize, true);
 
-  renderer.domElement.addEventListener('dblclick', function() {
+  rotationButton.addEventListener('click', function(e) {
     controls.autoRotate = !controls.autoRotate;
+    e.preventDefault();
+  });
+
+  rotationButton.addEventListener('touchstart', function(e) {
+    controls.autoRotate = !controls.autoRotate;
+    e.preventDefault();
   });
 
   animate();
@@ -68,6 +85,7 @@ function resize() {
 }
 
 const origin = new THREE.Vector3(0, -30, 0);
+const basePointSize = 75;
 var oldZoom = 0;
 
 function animate() {
@@ -80,7 +98,7 @@ function animate() {
     for (var i = 0; i < cloudMeshes.length; i++) {
       scene.remove(cloudMeshes[i]);
       var mat = cloudMeshes[i].material;
-      mat.size = (75 * mult / mat.numPoints) * mat.numOffset * mult;
+      mat.size = Math.max(1, (basePointSize * mult / mat.numPoints) * mat.numOffset * mult);
       scene.add(cloudMeshes[i]);
     }
   }
@@ -167,9 +185,8 @@ function createPointCloud(points, size) {
     var cloudMaterial = new THREE.PointCloudMaterial(
       {
         'color': hsbToRgb(240 - (240 * norm)),
-        'size': (75 / numPoints) * offset,
+        'size': Math.max(1, (basePointSize / numPoints) * offset),
         'opacity': 0.75,
-        'transparent': true,
         'sizeAttenuation': false,
         'transparent': true
       }
@@ -219,8 +236,11 @@ export function getDOM() {
   return renderer.domElement;
 }
 
+function encode(e){return e.replace(/[^]/g,function(e){return"&#"+e.charCodeAt(0)+";"})}
+
+
 export default function(name, points) {
   init();
-  label.innerHTML = name;
+  label.innerHTML = 'File: ' + encode(name);
   createPointCloud(points, Math.cbrt(points.length));
 }

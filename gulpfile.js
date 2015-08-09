@@ -49,7 +49,7 @@ gulp.task('build', function() {
   return bundler
     .transform(babelify)
     .bundle()
-    .pipe(source('data-viz.js'))
+    .pipe(source('data-viz.min.js'))
     .pipe(buffer())
     .pipe(uglify())
     .pipe(gulp.dest('build'));
