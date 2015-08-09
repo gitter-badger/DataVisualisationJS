@@ -1,0 +1,22 @@
+{
+  "name": "DataVisualisationJS",
+  "version": "0.0.0",
+  "homepage": "https://github.com/DomBlack/DataVisualisationJS",
+  "authors": [
+    "Dominic Black <dominic.black@sensatus.com>"
+  ],
+  "license": "BSD-2-Clause",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "fontawesome": "~4.4.0",
+    "react": "~0.13.3",
+    "threejs": "*",
+    "stats.js": "*"
+  }
+}
